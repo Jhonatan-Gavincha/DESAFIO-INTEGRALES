@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integración numérica · Desafío La Paz</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23c2512d' d='M4 0h4v2h2v2h2v4h-2v2h-2v2H4v-2H2v-2H0V4h2V2h2z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero">
+  <svg class="chakana" viewBox="0 0 12 12" aria-hidden="true">
+    <path d="M4 0h4v2h2v2h2v4h-2v2h-2v2H4v-2H2v-2H0V4h2V2h2z"/>
+    <circle cx="6" cy="6" r="1.6"/>
+  </svg>
+  <div>
+    <p class="eyebrow">Métodos Numéricos · Desafío grupal · La Paz, Bolivia</p>
+    <h1>Integración numérica <span>desde el Illimani</span></h1>
+    <p class="lead">Trapecio compuesto, Simpson 1/3 y Simpson 3/8 aplicados a problemas de transporte, agua, geometría y energía.</p>
+  </div>
+</header>
+
+<main>
+  <!-- 1. Ejercicio -->
+  <section class="card">
+    <div class="row between">
+      <h2><span class="num">1</span> Elige tu ejercicio</h2>
+      <label class="inline">Grupo
+        <select id="grupo">
+          <option value="">Todos</option>
+          <option value="A">A · 19 y 23</option><option value="B">B · 20 y 25</option>
+          <option value="C">C · 21 y 24</option><option value="D">D · 19 y 22</option>
+          <option value="E">E · 20 y 27</option><option value="F">F · 23 y 26</option>
+        </select>
+      </label>
+    </div>
+    <div id="chips" class="chips"></div>
+  </section>
+
+  <!-- Planteamiento -->
+  <section class="card plan" id="plan" hidden>
+    <h2 id="planTitle"></h2>
+    <p id="planCtx"></p>
+    <p class="model" id="planModel"></p>
+    <p class="warn" id="planWarn" hidden></p>
+    <div id="cardioWrap" hidden><canvas id="cardio" aria-label="Cardioide"></canvas></div>
+  </section>
+
+  <!-- 2. Datos -->
+  <section class="card">
+    <h2><span class="num">2</span> Datos y método</h2>
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab" id="tabData" role="tab">Datos tabulados (x, y)</button>
+      <button type="button" class="tab" id="tabFunc" role="tab">Función f(x), a, b, n</button>
+    </div>
+
+    <div id="panelData" class="grid">
+      <label class="span2">Valores de x <small>(separados por comas, espacios o saltos de línea)</small>
+        <textarea id="xs" rows="2" placeholder="0, 1, 2, 3, 4, 5, 6, 7"></textarea></label>
+      <label class="span2">Valores de y
+        <textarea id="ys" rows="2" placeholder="0, 14, 39, 69, 95, 114, 129, 139"></textarea></label>
+      <label>Transformación g(y) <small>(opcional)</small>
+        <input id="g" placeholder="p. ej. pi*(y/2)^2"></label>
+      <label>Factor de conversión del resultado <small>(opcional)</small>
+        <input id="factor" placeholder="p. ej. 1/3600"></label>
+    </div>
+
+    <div id="panelFunc" class="grid" hidden>
+      <label class="span2">f(x) <small>(use x, pi, e, sin, cos, sinh, cosh, sqrt, exp, ln, abs, ^)</small>
+        <input id="fx" placeholder="x^2"></label>
+      <label>a (límite inferior)<input id="a" inputmode="decimal" placeholder="0"></label>
+      <label>b (límite superior)<input id="b" inputmode="decimal" placeholder="2"></label>
+      <label>n (subintervalos)<input id="n" inputmode="numeric" placeholder="8"></label>
+    </div>
+
+    <div class="grid g3">
+      <label>Unidad de x<input id="xu" placeholder="s"></label>
+      <label>Unidad de y (o de f)<input id="yu" placeholder="mi/h"></label>
+      <label>Unidad del resultado<input id="ru" placeholder="mi"></label>
+      <label class="span2">Valor de referencia / exacto <small>(opcional; número o expresión)</small>
+        <input id="ref" placeholder="p. ej. 8/3"></label>
+      <label>Método
+        <select id="metodo">
+          <option value="all">Todos (comparar)</option>
+          <option value="trap">Trapecio compuesto</option>
+          <option value="s13">Simpson 1/3</option>
+          <option value="s38">Simpson 3/8</option>
+          <option value="comb">Combinado 1/3 + 3/8</option>
+        </select></label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn primary" id="calc">Calcular</button>
+      <button type="button" class="btn" id="test">Prueba de validación x²</button>
+      <button type="button" class="btn ghost" id="clear">Limpiar</button>
+      <button type="button" class="btn ghost" id="print">Imprimir / PDF</button>
+    </div>
+    <div id="msg" role="alert" hidden></div>
+  </section>
+
+  <!-- 3. Resultados -->
+  <section id="out" hidden>
+    <div class="card">
+      <h2><span class="num">3</span> Resultados</h2>
+      <div id="summary" class="summary"></div>
+      <div id="cards" class="cards"></div>
+    </div>
+    <div class="card"><h2>Gráfico: datos y área bajo la curva</h2>
+      <canvas id="chart" aria-label="Gráfico de la función y los trapecios"></canvas>
+      <p class="hint">Las franjas muestran los trapecios; los puntos son los nodos igualmente espaciados.</p></div>
+    <div class="card"><h2>Comparación de métodos</h2><div class="scroll" id="cmp"></div></div>
+    <div class="card"><h2>Tabla de factores (pesos) de integración</h2><div class="scroll" id="wts"></div></div>
+  </section>
+
+  <section class="card" id="testCard" hidden>
+    <h2>Prueba de validación · ∫₀² x² dx = 8/3</h2>
+    <div class="scroll" id="testOut"></div>
+  </section>
+</main>
+
+<footer>Métodos Numéricos · Desafío grupal de integración · La Paz, Bolivia<br>
+Los escenarios son adaptaciones didácticas; los datos no son mediciones reales de Bolivia.</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
